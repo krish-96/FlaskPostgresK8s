@@ -1,0 +1,8 @@
+releaseVersion: V1
+releaseDetails:
+  - Implemented the basic features of logging, utils and database connections and setting a test database
+  - Added a test table and inserted data
+  - Added a end point to get the get the db status
+  - Added a end point to get the get the current release version
+  - added a end point to get the current release
+  - Added a end point to get the get all the releases
