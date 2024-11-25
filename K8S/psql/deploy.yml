@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql-deployment
+  labels:
+    app: psql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres-container
+          image: postgres:15
+          ports:
+          - containerPort: 5432
+          resources:
+            limits:
+              cpu: "128m"
+              memory: "256Mi"
+            requests:
+              cpu: "64m"
+              memory: "128Mi"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom: 
+                secretKeyRef: 
+                  name: psql-secret
+                  key: password 
+            - name: POSTGRES_USER
+              valueFrom: 
+                configMapKeyRef: 
+                  name: psql-configs
+                  key: user 
+            - name: POSTGRES_DB
+              valueFrom: 
+                configMapKeyRef: 
+                  name: psql-configs
+                  key: db_name 
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              name: psql-pv-storage
+          # securityContext:
+            # fsGroup: 999  # 999 is the PostgreSQL default group ID
+      volumes:
+        - name: psql-pv-storage
+          persistentVolumeClaim:
+            claimName: psql-pv-claim

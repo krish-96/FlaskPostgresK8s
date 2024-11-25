@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  labels:
+    app: flask
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      containers:
+        - name: flask-container
+          image: krishnabelamkonda/secret_space:v1
+          ports:
+          - containerPort: 5000
+          resources:
+            limits:
+              cpu: "128m"
+              memory: "256Mi"
+            requests:
+              cpu: "64m"
+              memory: "128Mi"
+          env:
+            # DB Details
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: psql-secret
+                  key: password
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: psql-configs
+                  key: user
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: psql-configs
+                  key: db_name
+            - name: DB_HOST
+              value: postgres-service
+#              valueFrom:
+#                configMapKeyRef:
+#                  name: psql-configs
+#                  key: host
+            - name: DB_PORT
+              valueFrom: 
+                configMapKeyRef: 
+                  name: psql-configs
+                  key: port
+          volumeMounts:
+            - name: psql-pv-storage
+              mountPath: /var/log/flask/
+              subPath: app.ini
+            - name: flask-configs-vol
+              mountPath: /app/configs/app.ini
+              subPath: app.ini
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: dockerhub-creds
+      volumes:
+        - name: psql-pv-storage
+          persistentVolumeClaim:
+            claimName: psql-pv-claim
+        - name: flask-configs-vol
+          configMap:
+            name: flask-configs
+
+        
