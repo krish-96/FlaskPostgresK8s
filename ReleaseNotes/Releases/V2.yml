@@ -1,0 +1,9 @@
+releaseVersion: V2
+releaseDate: 11/26/2024
+releaseDetails:
+  - Segregated the api endpoints
+  - Create new method to check the application health
+  - Integrated flask restx api for future end points
+  - All the endpoints will be documented in Swagger
+  - Update the connection to close after checking the database status
+  - Created space holder methods for user creation and user list end points

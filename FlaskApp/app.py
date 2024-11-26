@@ -1,67 +1,61 @@
 import os
 from flask import Flask, render_template_string, url_for
 
-from FlaskApp.database import get_connection
-from FlaskApp.exceptions import UnableToConnect
+from FlaskApp.restx import api
 from FlaskApp.log_configs import logger
 from FlaskApp.utils import (
-    check_platform_compatibility, get_server_properties, check_db_status,
-    get_current_version, get_current_release_notes, get_all_releases
+    check_platform_compatibility, get_server_properties, check_db_status
 )
+
+from FlaskApp.exceptions import UnableToConnect
+
+from FlaskApp.urls import flask_app_blueprints, flask_app_namespaces
 
 app = Flask(__name__)
 
 
-@app.route("/", methods=["GET"])
+@app.route("/home", methods=["GET"])
 def index():
     logger.debug("User Accessed Home page")
     return render_template_string(
-        f"""
+        """
         You can start using the application, 
         Everything is working fine.
         <br/>Use below urls to access:
-        <br/><a href="{url_for("db_connection_check")}" target="_blank">DB status</a>
-        <br/><a href="{url_for("get_current_release")}" target="_blank">Current Release</a>
-        <br/><a href="{url_for("get_current_release_version")}" target="_blank">Current Release Version</a>
-        <br/><a href="{url_for("get_releases")}" target="_blank">All Releases</a>
+        <br/><a href="/db/status" target="_blank">DB status</a>
+        <br/><a href="/release/current_release" target="_blank">Current Release</a>
+        <br/><a href="/release/current_release_version" target="_blank">Current Release Version</a>
+        <br/><a href="/release/releases" target="_blank">All Releases</a>
         """
     )
 
 
-@app.route("/is_db_alive", methods=["GET"])
-def db_connection_check():
-    logger.debug("User Accessed DB Connection Check page")
-    return dict(
-        status=True if check_db_status() else False
-    )
+def initialize_app(flaskapp) -> None:
+    """This function will initialize the flask app with Flask restx Api"""
+    logger.info("Initializing the flaskapp with flask restx is started")
+    api.init_app(flaskapp)
+    # api.add_namespace()
+    logger.info("Initializing the flaskapp with flask restx is successful")
 
 
-@app.route("/current_release", methods=["GET"])
-def get_current_release():
-    logger.debug("User Accessed Current Release Page")
-    release_details = get_current_release_notes()
-    return dict(
-        currentRelease=release_details[0] if release_details and isinstance(release_details, list) else release_details
-    )
+def initialize_namespaces() -> None:
+    """This function will initialize the flask app namespaces"""
+    logger.info("Initializing the flaskapp namespaces is started")
+    for ns in flask_app_namespaces:
+        api.add_namespace(ns)
+    logger.debug("Initializing the flaskapp namespaces is successful")
 
 
-@app.route("/current_release_version", methods=["GET"])
-def get_current_release_version():
-    logger.debug("User Accessed Current Release Version Page")
-    return dict(
-        currentVersion=get_current_version()
-    )
+def initialize_blueprints() -> None:
+    """This function will initialize the flask app blueprints"""
+    logger.info("Initializing the flaskapp blueprints is started")
+    for bp in flask_app_blueprints:
+        app.register_blueprint(bp)
+    logger.debug("Initializing the flaskapp blueprints is successful")
 
 
-@app.route("/releases", methods=["GET"])
-def get_releases():
-    logger.debug("User Accessed Releases Page")
-    return dict(
-        releases=get_all_releases()
-    )
-
-
-def start_app():
+def start_app() -> None:
+    """This function will check for the necessary details for the app and start"""
     try:
         logger.debug("Checking the compatibility of the platform")
         if check_platform_compatibility():
@@ -76,7 +70,8 @@ def start_app():
             if server_props:
                 logger.debug("Server properties are available")
                 use_env_variables = server_props['use_env_variables']
-                if use_env_variables not in (True, 'True', 'true', 1):
+                enabled_flogs = {True, 'True', 'true', 1}
+                if use_env_variables not in enabled_flogs:
                     host = str(server_props['host'])
                     port = server_props['port']
                     debug = server_props['debug']
@@ -86,10 +81,18 @@ def start_app():
                     port = os.getenv('port')
                     debug = os.getenv('debug') or False
 
+                debug = True if debug in enabled_flogs else False
+
                 # print(f"host: {host} port: {port} debug: {debug}")
 
-                # For local developement
-                # app.run(host="0.0.0.0", port=6000, debug=debug, use_reloader=use_reloader)
+                # For local development
+                # app.run(host="0.0.0.0", port=5000, debug=debug, use_reloader=use_reloader)
+                logger.debug("Running the initials before Starting the app")
+
+                initialize_app(app)
+                initialize_namespaces()
+                initialize_blueprints()
+
                 logger.debug("Starting the app")
                 app.run(host=host, port=port, debug=debug)
             logger.debug("Server properties are not available!")
