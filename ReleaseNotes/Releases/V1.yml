@@ -1,4 +1,5 @@
 releaseVersion: V1
+releaseDate: 11/10/2024
 releaseDetails:
   - Implemented the basic features of logging, utils and database connections and setting a test database
   - Added a test table and inserted data

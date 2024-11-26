@@ -11,15 +11,30 @@ from FlaskApp.database import get_connection
 from FlaskApp.log_configs import logger
 
 
-def get_current_date():
-    return datetime.now().date()
+def get_current_date(date_format=None) -> datetime.date:
+    today = datetime.now().date()
+    try:
+        if date_format:
+            return today.strftime(date_format)
+        return today
+    except:
+        return today
 
 
-def get_current_datetime():
-    return datetime.now()
+def get_current_datetime(datetime_format=None) -> datetime.now:
+    now = datetime.now()
+    try:
+        if datetime_format:
+            return now.strftime(datetime_format)
+        return now
+    except:
+        return now
 
 
 def create_dir(dirs):
+    """This function will create the parent directories for the given path
+        If the path already exists, it'll skip
+    """
     try:
         os.makedirs(os.path.dirname(dirs), exist_ok=True)
     except Exception as create_dir_err:
@@ -27,6 +42,7 @@ def create_dir(dirs):
 
 
 def get_abs_path(file_path):
+    """This function wil return the absolute path for the given file path"""
     try:
         file_path = os.path.normpath(os.path.join(os.path.dirname(__file__), file_path))
         return file_path
@@ -34,7 +50,15 @@ def get_abs_path(file_path):
         print(f"Exception occurred while fetching the abs path @ {file_path}, Exception: {get_abs_path_err}")
 
 
-def get_properties(file_path, section, option=None):
+def get_properties(file_path, section: str, option: Optional[str] = None) -> Dict | str | None:
+    """This function wil read the data form the given configuration file
+        and returns the data for the given section and optional option (key).
+        if the given section is not exists, it'll return None
+    :param file_path: configuration file path
+    :param section: configuration section
+    :param option: configuration option (Key)
+
+    """
     try:
         file_path = get_abs_path(file_path)
         cfg = ConfigParser()
@@ -69,7 +93,8 @@ def get_yaml_content(file_path, key: Optional[str] = None) -> Optional[Dict | An
         logger.error(f"Exception occurred while fetching the yaml content @ {file_path}, Exception: {yaml_key_err}")
         raise yaml_key_err
     except Exception as get_yaml_data_err:
-        logger.error(f"Exception occurred while fetching the yaml content @ {file_path}, Exception: {get_yaml_data_err}")
+        logger.error(
+            f"Exception occurred while fetching the yaml content @ {file_path}, Exception: {get_yaml_data_err}")
 
 
 def check_platform_compatibility():
@@ -97,11 +122,18 @@ def check_db_status() -> bool:
     This will create a database connection and close, To determine whether the app can connect to the database or not
     :return True if the database connection established else False
     """
-    return True if get_connection() else False
+    is_connection_available = False
+    connection = get_connection()
+    if connection:
+        logger.debug("Database connection established")
+        logger.debug("Closing database connection.")
+        connection.close()
+        is_connection_available = True
+    return is_connection_available
 
 
-def format_release_version(release_version):
-    current_date = get_current_date()
+def format_release_version(release_version, released_date):
+    current_date = datetime.strptime(released_date, "%m/%d/%Y")
     print("current_date: ", current_date, current_date.day)
     return AppEnum.current_release_version_format_UI.value.format(
         version=release_version, day=current_date.day, month=current_date.month, year=current_date.year
@@ -110,14 +142,15 @@ def format_release_version(release_version):
 
 def get_current_version(formatted=True):
     try:
-        current_release = get_properties(
+        current_release_details = get_properties(
             file_path=AppEnum.current_release_file_path.value,
-            section="CurrentRelease",
-            option="Version"
+            section="CurrentRelease"
         )
+        current_release_version = current_release_details.get('version')
+        current_release_date = current_release_details.get('date')
         if formatted:
-            return format_release_version(current_release)
-        return current_release
+            return format_release_version(current_release_version, released_date=current_release_date)
+        return current_release_version
     except:
         return
 
@@ -127,14 +160,14 @@ def get_all_releases(release_version=None):
         release_notes = []
         releases_dir = AppEnum.release_dir_path.value
         yaml_files = os.listdir(get_abs_path(releases_dir))
-        if not release_version:
+        if release_version:
+            if (yaml_file := f"{release_version}.yml") in yaml_files:
+                yaml_data = get_yaml_content(os.path.join(releases_dir, yaml_file))
+                release_notes.append(yaml_data)
+        else:
             for yaml_file in yaml_files:
                 current_yaml_file_content = get_yaml_content(os.path.join(releases_dir, yaml_file))
                 release_notes.append(current_yaml_file_content)
-        elif release_version and (yaml_file:=f"{release_version}.yml") in yaml_files:
-            yaml_data = get_yaml_content(os.path.join(releases_dir, yaml_file))
-            release_notes.append(yaml_data)
-
         return release_notes
     except Exception as rel_err:
         print(f"Exception occurred while fetching the releases @ {release_version}, Exception: {rel_err}")

@@ -5,15 +5,13 @@ import logging
 __all__ = ['logger']
 
 
-def create_log_dir(dir_path):
-    from FlaskApp.utils import create_dir
-    create_dir(dir_path)
-
-
 log_file_name = "FlaskApp_logs.log"
 log_file_path = "/var/log/flask/"
 
 log_file_abs_path = os.path.join(log_file_path, log_file_name)
+
+# Creating the log directory if not exists
+os.makedirs(os.path.dirname(log_file_abs_path), exist_ok=True)
 
 file_handler = logging.FileHandler(filename=log_file_abs_path)
 console_handler = logging.StreamHandler(stream=sys.stdout)
