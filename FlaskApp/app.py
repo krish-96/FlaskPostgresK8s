@@ -7,6 +7,8 @@ from FlaskApp.utils import (
     check_platform_compatibility, get_server_properties, check_db_status
 )
 
+from FlaskApp.database import SetTestDataBase
+
 from FlaskApp.exceptions import UnableToConnect
 
 from FlaskApp.urls import flask_app_blueprints, flask_app_namespaces
@@ -54,6 +56,16 @@ def initialize_blueprints() -> None:
     logger.debug("Initializing the flaskapp blueprints is successful")
 
 
+def set_up_test_tables() -> None:
+    """This function will set up the test tables in the database"""
+    logger.info("Setting up the test tables in the database")
+    set_test_db_obj = SetTestDataBase()
+    if not set_test_db_obj.set_test_tables():
+        set_test_db_obj.set_test_data()
+    set_test_db_obj.verify_test_data()
+    logger.info("Setting up the test tables in the database is successful")
+
+
 def start_app() -> None:
     """This function will check for the necessary details for the app and start"""
     try:
@@ -70,7 +82,7 @@ def start_app() -> None:
             if server_props:
                 logger.debug("Server properties are available")
                 use_env_variables = server_props['use_env_variables']
-                enabled_flogs = {True, 'True', 'true', 1}
+                enabled_flogs = frozenset([True, 'True', 'true', 1])
                 if use_env_variables not in enabled_flogs:
                     host = str(server_props['host'])
                     port = server_props['port']
@@ -92,10 +104,11 @@ def start_app() -> None:
                 initialize_app(app)
                 initialize_namespaces()
                 initialize_blueprints()
+                set_up_test_tables()
 
                 logger.debug("Starting the app")
                 app.run(host=host, port=port, debug=debug)
-            logger.debug("Server properties are not available!")
+            logger.info("Server properties are not available!")
     except Exception as start_app_err:
         logger.error(f"Exception occurred while starting the app, Exception: {start_app_err}")
 

@@ -4,6 +4,7 @@ import platform
 from datetime import datetime
 from configparser import ConfigParser
 from typing import Optional, Dict, AnyStr, Any
+import fernet
 
 from FlaskApp.exceptions import UnSupportedPlatform
 from FlaskApp.constants import AppEnum
@@ -181,3 +182,23 @@ def get_current_release_notes():
         return current_release
     except:
         return False
+
+
+def generate_encrypt_key():
+    return fernet.Fernet.generate_key()
+
+
+def encrypt_data(data, key):
+    if not key:
+        raise ValueError("No encryption key was provided!")
+    fernet_obj = fernet.Fernet(key)
+    encrypted_data = fernet_obj.encrypt(data)
+    return encrypted_data.decode('utf-8')
+
+
+def decrypt_data(data, key):
+    if not key:
+        raise ValueError("No decryption key was provided!")
+    fernet_obj = fernet.Fernet(key)
+    decrypted_data = fernet_obj.decrypt(data)
+    return decrypted_data.decode('utf-8')

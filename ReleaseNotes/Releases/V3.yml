@@ -1,0 +1,10 @@
+releaseVersion: V3
+releaseDate: 11/27/2024
+releaseDetails:
+  - Added user apis to list, create and detail
+  - Added sql queries to add in file
+  - Added Sqlalchemy package
+  - Added Sqlalchemy engine for executing the database queries
+  - Added database exceptions
+  - Restricted DROP Queries
+  - Restricted DELETE Queries without WHERE clause

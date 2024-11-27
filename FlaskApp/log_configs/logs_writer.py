@@ -17,7 +17,7 @@ file_handler = logging.FileHandler(filename=log_file_abs_path)
 console_handler = logging.StreamHandler(stream=sys.stdout)
 
 log_level = logging.DEBUG
-log_format = "[%(asctime)s] [%(levelname)s] %(message)s"
+log_format = "[%(asctime)s] [%(levelname)s] [%(filename)s @%(lineno)d | %(funcName)s]  %(message)s"
 
 file_formatter = logging.Formatter(log_format)
 console_formatter = logging.Formatter(log_format)
