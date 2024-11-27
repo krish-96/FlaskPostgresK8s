@@ -12,3 +12,5 @@ class AppEnum(Enum):
 
     current_release_version_format_UI = "{version}.{year}.{month}.{day}"
     current_release_version_format_BE = "{version}"
+
+    sql_queries_path = "../database/sql_queries/queries.ini"
