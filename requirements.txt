@@ -1,8 +1,9 @@
 aniso8601==9.0.1
+APScheduler==3.11.0
 attrs==24.2.0
 blinker==1.9.0
 click==8.1.7
-configparser==7.1.0
+dnspython==2.7.0
 fernet==1.0.1
 Flask==3.1.0
 flask-restx==1.3.0
@@ -15,10 +16,12 @@ jsonschema-specifications==2024.10.1
 MarkupSafe==3.0.2
 psycopg2-binary==2.9.10
 pyaes==1.6.1
+pymongo==4.10.1
 pytz==2024.2
 PyYAML==6.0.2
 referencing==0.35.1
 rpds-py==0.21.0
 SQLAlchemy==2.0.36
 typing_extensions==4.12.2
+tzlocal==5.2
 Werkzeug==3.1.3

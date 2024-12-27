@@ -1,0 +1,13 @@
+-- Table create
+-- User table with basic/initial data
+create table "user" (id serial primary key, name varchar(50));
+
+-- User activity table to track user actions
+create table create_user_activity_table(
+	id serial primary key,
+	user_id int references "user"(id) on delete cascade,
+	action char(6) not null,
+	url text not null
+);
+
+

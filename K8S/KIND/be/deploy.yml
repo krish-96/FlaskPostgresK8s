@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-deployment
+  labels:
+    app: flask
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask
+  template:
+    metadata:
+      labels:
+        app: flask
+    spec:
+      hostname: flask-app
+      containers:
+        - name: flask-container
+          image: krishnabelamkonda/secret_space:v4
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 5000
+          resources:
+            limits:
+              cpu: "128m"
+              memory: "256Mi"
+            requests:
+              cpu: "64m"
+              memory: "128Mi"
+          env:
+            # DB Details
+            # 1. Postgres
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: psql-secret
+                  key: password
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: psql-configs
+                  key: user
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: psql-configs
+                  key: db_name
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: psql-configs
+                  key: host
+            - name: DB_PORT
+              valueFrom: 
+                configMapKeyRef: 
+                  name: psql-configs
+                  key: port
+            # 2. Mongo
+            - name: MDB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: password
+            - name: MDB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: user
+            - name: MDB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: host
+            - name: MDB_PORT
+              valueFrom:
+                configMapKeyRef: 
+                  name: mongo-configs
+                  key: port
+            - name: MDB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: db_name
+            - name: MAUTHENTICATION_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: authentication_database
+          # volumeMounts:
+          #   - name: psql-pv-storage
+          #     mountPath: /var/log/flask/
+          #   - name: flask-configs-vol
+          #   # if we set only mountPath will act as a directory here, so we are using subPath for the file
+          #     mountPath: /app/configs/app.ini
+          #     subPath: app.ini
+      imagePullSecrets:
+        - name: dockerhub-creds
+      # volumes:
+      #   - name: psql-pv-storage
+      #     persistentVolumeClaim:
+      #       claimName: psql-pv-claim
+      #   - name: flask-configs-vol
+      #     configMap:
+      #       name: flask-configs

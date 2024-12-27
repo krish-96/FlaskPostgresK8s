@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  labels:
+    app: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+    # This should match template.metadata.labels
+      app: mongo
+  template:
+    metadata:
+      labels:
+      # This should match spec.selector.matchLabels
+        app: mongo
+    spec:
+      containers:
+        - name: mongo-container
+          image: mongo:8.0.4-rc0
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 27018
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: user
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: password
+          resources:
+            requests:
+              cpu: "125m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: psql-pv-storage
+              mountPath: /data/db
+      volumes:
+        - name: psql-pv-storage
+          persistentVolumeClaim:
+            claimName: psql-pv-claim

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-configs
+data:
+  db_name: flask-db
+  user: developer
+  port: "27017" # Same should be configured in flask app config/Env variables
+  host: mongo-service # We are using psql service name as a host, it'll be used only for flask connection
+  authentication_database: flask-db

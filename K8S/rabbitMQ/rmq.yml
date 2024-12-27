@@ -1,0 +1,21 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq
+  namespace: rabbitmq
+spec:
+  replicas: 1
+  rabbitmq:
+    additionalConfig: |
+      load_definitions = /etc/rabbitmq/definitions.json
+  persistence:
+    storage: 10Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: "0.5"
+    limits:
+      memory: 1Gi
+      cpu: "1"
+  service:
+    type: NodePort

@@ -1,4 +1,4 @@
-from .connection import get_connection, get_db_details
+from .connection import get_connection, get_sql_db_name
 from .db_helper import check_table, execute_and_commit_query, get_query_results_dict
 
 from FlaskApp.log_configs import logger
@@ -25,10 +25,7 @@ class SetTestDataBase:
     def set_test_tables(self):
         try:
             self.check_initials()
-            db_name = None
-            db_details = get_db_details()
-            if db_details and "name" in db_details:
-                db_name = db_details["name"]
+            db_name = get_sql_db_name()
             logger.info(f"Connected to the PostgreSQL database '{db_name}' successfully!")
 
             if check_table(table_name="test_table"):

@@ -1,5 +1,5 @@
 from FlaskApp.database import execute_and_commit_query
-from FlaskApp.database.db_helper import get_query_results_dict
+from FlaskApp.database import get_query_results_dict
 from FlaskApp.constants import AppEnum
 from FlaskApp.utils import get_properties
 from FlaskApp.log_configs import logger
@@ -27,7 +27,6 @@ class UserHandler(object):
     def create_user(**kwargs):
         logger.info("Creating the user...")
         user_list_query = get_properties(AppEnum.sql_queries_path.value, section='User', option='create')
-        print(f"kwargs: {kwargs}")
         if 'username' in kwargs:
             name = kwargs['username']
         elif 'name' in kwargs:

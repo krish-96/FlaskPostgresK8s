@@ -1,3 +1,6 @@
+class DataBaseDetailsNotFound(Exception):
+    """This exception is raised when database details are not found"""
+
 class DataBaseConnectionFailed(Exception):
     """This exception is raised when app is unable to get a database connection"""
 
@@ -8,6 +11,7 @@ class DeleteQueryWithOutWhereNotAllowed(Exception):
 
 class DropQueryNotAllowed(Exception):
     """This exception is raised when drop query is provided"""
+
 
 class TableNameIsRequired(Exception):
     """This exception is raised when a table name is not provided"""

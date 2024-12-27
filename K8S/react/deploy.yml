@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-app
+spec:
+  selector:
+    matchLabels:
+      app: react-todo
+  template:
+    metadata:
+      labels:
+        app: react-todo
+    spec:
+      containers:
+      - name: react-todo-container
+        image: krishnabelamkonda/react-builds:react_todo_v1
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+            
+        ports:
+        - containerPort: 5173

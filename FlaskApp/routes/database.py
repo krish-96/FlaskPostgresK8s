@@ -1,12 +1,12 @@
-from flask_restx.namespace import Namespace
 from flask_restx import Resource
 
+from FlaskApp.restx import api
 from FlaskApp.log_configs import logger
 from FlaskApp.utils import check_db_status
 
 __all__ = ['database_ns']
 
-database_ns = Namespace('db', prefix="api", description="A namespace to hold all the database endpoints")
+database_ns = api.namespace('api/db', description="A namespace to hold all the database endpoints")
 
 
 @database_ns.route("/is_alive")
