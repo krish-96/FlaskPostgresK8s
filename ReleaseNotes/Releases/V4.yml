@@ -1,0 +1,9 @@
+releaseVersion: V4
+releaseDate: 12/02/2024
+releaseDetails:
+  - Integrated Mongo DB services
+  - Improved the performance by storing the necessary data in Mongo DB for quick access
+  - Added dynamic query execution for the given mongo db queries
+  - Segregated the connections for PSQL and Mongo DB
+  - Added a new query to fetch track the user activity
+  - Added a model function to register and retrieve the model with the specific namespace

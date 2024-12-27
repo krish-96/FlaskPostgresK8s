@@ -1,12 +1,12 @@
-from flask_restx.namespace import Namespace
 from flask_restx import Resource
+from FlaskApp.restx import api
 
 from FlaskApp.log_configs import logger
 from FlaskApp.utils import get_current_release_notes, get_current_version, get_all_releases
 
 __all__ = ['release_ns']
 
-release_ns = Namespace('release', prefix="api", description="A namespace to hole all the release endpoints")
+release_ns = api.namespace('api/release', description="A namespace to hole all the release endpoints")
 
 
 @release_ns.route("/current_release")

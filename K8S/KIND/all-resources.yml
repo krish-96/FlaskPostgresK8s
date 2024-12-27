@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    kubernetes.io/enforce-mountable-secrets: "true"
+  name: all-ns-user
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: all-ns-read-role
+rules:
+  - apiGroups: [""]
+    resources: ["services", "pods", "pods/log", "deployments", "namespaces", "configmaps", "secrets", "nodes"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This cluster role binding allows anyone in the "manager" group to read secrets in any namespace.
+kind: ClusterRoleBinding
+metadata:
+  name: all-ns-read-glocal
+subjects:
+- kind: ServiceAccount
+  name: all-ns-user # Name is case sensitive
+  namespace: default  # Allowing access to all namespaces
+roleRef:
+  kind: ClusterRole
+  name: all-ns-read-role
+  apiGroup: rbac.authorization.k8s.io
+
+
+# Deleting the sa, ClusterRole, ClusterRoleBinding
+# kdel sa all-ns-user
+# kdel clusterrole all-ns-read-role
+# kdel clusterrolebinding all-ns-read-glocal
+
+# Creating the token
+
+# KIND|develop⚡ ⇒ k create token all-ns-user
+# eyJhbGciOiJSUzI1NiIsImtpZCI6InBfRTJndWc1b3NuTUJvNk1yVmVKZU8xd2F6RGM0VUo2Zlh5RUJwMjU5aVUifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzMzMzg3NTUzLCJpYXQiOjE3MzMzODM5NTMsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiYjBiNWU0MzUtY2ZlZi00ZjI1LWE2MTQtNDQ4ZDE4Njg1NDM0Iiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZWZhdWx0Iiwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImFsbC1ucy11c2VyIiwidWlkIjoiY2UyOTgwMWEtNGRhYy00ZWMzLWFmZWYtZjE2MDhmMzhmMDBlIn19LCJuYmYiOjE3MzMzODM5NTMsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmFsbC1ucy11c2VyIn0.iDp06RPZdnfOpI7TiaAIZTxLiiw4Sc0vADoArcMl49HnlVFhjPeTnFNXSpESnR-6eWOqTdJO4sZccKdD166SgWXUEN2KNU18cp1cKdgfKsNqlwMd-GDLOeT7-amTj0ECn8ooxZeSREcc3AodnT18YPlSeeeJIjC--gDn84Zg1RYnrAZ4cI1ErP9zNc82z9rPbI02dyJXgjvqO7mI4i6c5-T24U0GUQydVhjtTI1hxFAAZAD-YTZQa9i57tJ8OJ1OI5vw9g4kKT_zW71YSJdBtGi69UYvA6JwQZcBzElywa2uMV-DkIyeEnStKCD3ldXrFTFuOMBrNjWEcdjiN_RObQ
+
+# KIND|develop⚡ ⇒ k create token all-ns-user --duration 5h 
+# eyJhbGciOiJSUzI1NiIsImtpZCI6InBfRTJndWc1b3NuTUJvNk1yVmVKZU8xd2F6RGM0VUo2Zlh5RUJwMjU5aVUifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNzMzNDAxOTk5LCJpYXQiOjE3MzMzODM5OTksImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwianRpIjoiZDMyZmZiNzktYjc0Yi00ZDQxLTk0OTMtYWY0ODQ0NDU4ZTJmIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZWZhdWx0Iiwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImFsbC1ucy11c2VyIiwidWlkIjoiY2UyOTgwMWEtNGRhYy00ZWMzLWFmZWYtZjE2MDhmMzhmMDBlIn19LCJuYmYiOjE3MzMzODM5OTksInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmFsbC1ucy11c2VyIn0.mosb2vEIxCiwpdisWLX3qAcxTBFfoT934yjrvl3olxisDGXo_Gj_NwT7AIegoxcMaQmf18NZ5seM1EkJMe5YPqffGATv3RdbosaP11dmFRDJ7iPzKrqgAuGCTqhQvHn6k6-NEO1NNkyClrdiukh8-cliPYeOjV_XctmjIyRvzJzwdZBE-bkItAfPlHJ9TfIlehpTnOZiz-Qzo6jOtQWlfqAGpkVNh_b_DtjxKF2B7idYEQfjHPrZ0hDM79nzTNPw8eumoY90fAvV-NGCTUHeF64BptqekbN_nzbzKe8A9YMFRSD0-yw9KKKzDtUyoVMe_eahcjyKZw3mpeocOQlnQA

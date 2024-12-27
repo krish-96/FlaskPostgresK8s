@@ -1,0 +1,8 @@
+releaseVersion: V4
+releaseDate: 12/02/2024
+releaseDetails:
+  - Specified the separate method for each database operations like fetching connection, collection
+  - Added api endpoints for CRUD on mongo db collections
+  - Added api endpoints for CRUD on mongo db documents
+  - Added all the database related stuff in the database module
+  - Added Kubernetes manifest files

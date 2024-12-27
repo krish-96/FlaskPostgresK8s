@@ -1,0 +1,7 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: manual
+provisioner: kubernetes.io/no-provisioner  # No dynamic provisioning needed, manual volume binding
+# volumeBindingMode: WaitForFirstConsumer  # Allows binding of PVC after pods are scheduled
+volumeBindingMode: Immediate

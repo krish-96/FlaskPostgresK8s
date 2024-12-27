@@ -5,7 +5,7 @@ metadata:
   labels:
     app: flask
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: flask
@@ -14,12 +14,14 @@ spec:
       labels:
         app: flask
     spec:
+      hostname: flask-app
       containers:
         - name: flask-container
-          image: krishnabelamkonda/secret_space:v3
+          image: krishnabelamkonda/secret_space:v4
           imagePullPolicy: Always
           ports:
-          - containerPort: 5000
+          - name: flask-port
+            containerPort: 5052
           resources:
             limits:
               cpu: "128m"
@@ -29,6 +31,7 @@ spec:
               memory: "128Mi"
           env:
             # DB Details
+            # 1. Postgres
             - name: DB_PASS
               valueFrom:
                 secretKeyRef:
@@ -54,6 +57,54 @@ spec:
                 configMapKeyRef: 
                   name: psql-configs
                   key: port
+            # 2. Mongo
+            - name: MDB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: password
+            - name: MDB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: user
+            - name: MDB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: host
+            - name: MDB_PORT
+              valueFrom:
+                configMapKeyRef: 
+                  name: mongo-configs
+                  key: port
+            - name: MDB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: db_name
+            - name: MAUTHENTICATION_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configs
+                  key: authentication_database
+          readinessProbe:
+            httpGet:
+#              path: /healthz
+              path: /db/is_alive
+              port: 5052
+#              port: flask-port
+#              httpHeaders:
+#                - name: Custom-Header
+#                  value: Awesome
+            initialDelaySeconds: 3
+            periodSeconds: 10
+#          livenessProbe:
+#            httpGet:
+#              path: /db/status
+#              port: 5052
+#            failureThreshold: 1
+#            periodSeconds: 15
           volumeMounts:
             - name: psql-pv-storage
               mountPath: /var/log/flask/
@@ -70,5 +121,3 @@ spec:
         - name: flask-configs-vol
           configMap:
             name: flask-configs
-
-        

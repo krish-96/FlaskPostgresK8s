@@ -47,7 +47,7 @@ spec:
             - mountPath: "/var/lib/postgresql/data"
               name: psql-pv-storage
           # securityContext:
-            # fsGroup: 999  # 999 is the PostgreSQL default group ID
+          #   fsGroup: 999  # 999 is the PostgreSQL default group ID
       volumes:
         - name: psql-pv-storage
           persistentVolumeClaim:

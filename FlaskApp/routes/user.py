@@ -1,6 +1,6 @@
 from flask import Blueprint, request
+from FlaskApp.restx import api
 from flask_restx import Resource
-from flask_restx.namespace import Namespace
 
 from FlaskApp.log_configs import logger
 from FlaskApp.database.handler import UserHandler
@@ -8,9 +8,7 @@ from FlaskApp.database.handler import UserHandler
 __all__ = ['user_ns', 'user_blueprint']
 
 user_blueprint = Blueprint('user', __name__, url_prefix='/user')
-user_ns = Namespace(
-    'user', prefix='/api', description="A namespace to hold all the user endpoints"
-)
+user_ns = api.namespace('api/user', description="A namespace to hold all the user endpoints")
 
 
 @user_blueprint.route('/')
